@@ -18,6 +18,7 @@ public class MainManager : MonoBehaviour
     
     private bool m_Started = false;
     private int m_Points;
+    private int m_HighScore;
     
     private bool m_GameOver = false;
 
@@ -78,8 +79,10 @@ public class MainManager : MonoBehaviour
         m_GameOver = true;
         GameOverText.SetActive(true);
         BackToMenuButton.SetActive(true);
-        SaveHighScore();
-
+        if (m_Points > m_HighScore)
+        {
+            SaveHighScore();
+        }
     }
 
     public void ExitGame()
@@ -99,6 +102,7 @@ public class MainManager : MonoBehaviour
         SaveData data = new SaveData();
         data.name = SetPlayerName();
         data.score = m_Points;
+        m_HighScore = data.score;
 
         string json = JsonUtility.ToJson(data);
 
@@ -113,6 +117,8 @@ public class MainManager : MonoBehaviour
         {
             string json = File.ReadAllText(path);
             SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            m_HighScore = data.score;
 
             HighScoreText.text = "Best Score : " + data.name + " : " + data.score;
         }

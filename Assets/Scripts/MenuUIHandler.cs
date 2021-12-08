@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-public class StartNewGame : MonoBehaviour 
+public class MenuUIHandler : MonoBehaviour 
 {
     public InputField inputField;
 
@@ -16,6 +19,14 @@ public class StartNewGame : MonoBehaviour
     public void StartNew()
     {
         SceneManager.LoadScene(1);
+    }
+    public void Exit()
+    {
+#if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+#else
+        Application.Quit();
+#endif
     }
 
 }
