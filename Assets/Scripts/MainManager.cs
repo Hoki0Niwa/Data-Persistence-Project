@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.IO;
 
 public class MainManager : MonoBehaviour
 {
@@ -11,7 +12,9 @@ public class MainManager : MonoBehaviour
     public Rigidbody Ball;
 
     public Text ScoreText;
+    public Text HighScoreText;
     public GameObject GameOverText;
+    public GameObject BackToMenuButton;
     
     private bool m_Started = false;
     private int m_Points;
@@ -36,6 +39,8 @@ public class MainManager : MonoBehaviour
                 brick.onDestroyed.AddListener(AddPoint);
             }
         }
+
+        LoadHighScore();
     }
 
     private void Update()
@@ -72,5 +77,60 @@ public class MainManager : MonoBehaviour
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        BackToMenuButton.SetActive(true);
+        SaveHighScore();
+
+    }
+
+    public void ExitGame()
+    {
+        SceneManager.LoadScene(0);
+    }
+
+    [System.Serializable]
+    class SaveData
+    {
+        public string name;
+        public int score;
+    }
+
+    public void SaveHighScore()
+    {
+        SaveData data = new SaveData();
+        data.name = SetPlayerName();
+        data.score = m_Points;
+
+        string json = JsonUtility.ToJson(data);
+
+        HighScoreText.text = "Best Score : " + data.name + " : " + data.score;
+        File.WriteAllText(Application.persistentDataPath + "savefile.json", json);
+    }
+
+    public void LoadHighScore()
+    {
+        string path = Application.persistentDataPath + "savefile.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+
+            HighScoreText.text = "Best Score : " + data.name + " : " + data.score;
+        }
+        else
+        {
+            HighScoreText.text = "Best Score : NONAME : 0";
+        }
+    }
+
+    private string SetPlayerName()
+    {
+        if (MenuManager.instance.playerName == "")
+        {
+            return "NONAME";
+        }
+        else
+        {
+            return MenuManager.instance.playerName;
+        }
     }
 }
